@@ -1,0 +1,6 @@
+@VismaAPI_HostAddress = http://localhost:5133
+
+GET {{VismaAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
