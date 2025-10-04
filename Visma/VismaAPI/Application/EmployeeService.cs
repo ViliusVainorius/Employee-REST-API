@@ -1,11 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using VismaAPI.Data;
 using VismaAPI.Domain;
 using VismaAPI.Models;
+using VismaAPI.Utilities;
 
 namespace VismaAPI.Application;
 
-public class EmployeeService(VismaAPIContext context) : IEmployeeService
+public class EmployeeService(
+    VismaAPIContext context, 
+    IValidator<EmployeeDto> employeeValidator, 
+    IValidator<UpdateSalaryDto> updateSalaryValidator) : IEmployeeService
 {
     public async Task<Employee?> GetByIdAsync(int id) =>
         await context.Employees.FindAsync(id);
@@ -51,17 +56,17 @@ public class EmployeeService(VismaAPIContext context) : IEmployeeService
         };
     }
 
-    public async Task<Employee> CreateAsync(Employee employee)
-    {
-        context.Employees.Add(employee);
-
-        await context.SaveChangesAsync();
-
-        return employee;
-    }
-
     public async Task<Employee> CreateAsync(EmployeeDto dto)
     {
+        var validationResult = await employeeValidator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = ValidationErrorFormatter.FormatValidationErrors(validationResult.Errors);  
+
+            throw new Exceptions.ValidationException(errors);
+        }
+
         var employee = dto.ToEntity();
 
         context.Employees.Add(employee);
@@ -73,6 +78,15 @@ public class EmployeeService(VismaAPIContext context) : IEmployeeService
 
     public async Task<bool> UpdateAsync(int id, EmployeeDto dto)
     {
+        var validationResult = await employeeValidator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = ValidationErrorFormatter.FormatValidationErrors(validationResult.Errors);
+
+            throw new Exceptions.ValidationException(errors);
+        }
+
         var employee = await context.Employees.FindAsync(id);
 
         if (employee == null)
@@ -87,6 +101,15 @@ public class EmployeeService(VismaAPIContext context) : IEmployeeService
 
     public async Task<bool> UpdateSalaryAsync(int id, UpdateSalaryDto salaryDto)
     {
+        var validationResult = updateSalaryValidator.Validate(salaryDto);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = ValidationErrorFormatter.FormatValidationErrors(validationResult.Errors);
+
+            throw new Exceptions.ValidationException(errors);
+        }
+
         var employee = await context.Employees.FindAsync(id);
 
         if (employee == null)

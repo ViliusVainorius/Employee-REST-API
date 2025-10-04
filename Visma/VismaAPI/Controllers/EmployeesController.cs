@@ -65,6 +65,9 @@ public class EmployeesController(IEmployeeService service) : ControllerBase
     {
         var employees = await service.GetByBossIdAsync(bossId);
 
+        if (employees == null)
+            return Ok(Enumerable.Empty<Employee>());
+
         return Ok(employees);
     }
 
@@ -101,7 +104,7 @@ public class EmployeesController(IEmployeeService service) : ControllerBase
     /// <param name="employee"></param>
     /// <returns></returns>
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateEmployee(int id, EmployeeDto employeeDto)
+    public async Task<IActionResult> UpdateEmployee(int id, [FromBody] EmployeeDto employeeDto)
     {
         var isUpdated = await service.UpdateAsync(id, employeeDto);
 
