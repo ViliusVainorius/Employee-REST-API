@@ -6,7 +6,7 @@ using VismaAPI.Models;
 
 namespace VismaAPI.Validators;
 
-internal sealed class EmployeeDtoValidator : AbstractValidator<EmployeeDto>
+public sealed class EmployeeDtoValidator : AbstractValidator<EmployeeDto>
 {
     private readonly VismaAPIContext context;
 

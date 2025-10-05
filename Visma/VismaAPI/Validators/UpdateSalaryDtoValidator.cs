@@ -3,7 +3,7 @@ using VismaAPI.Models;
 
 namespace VismaAPI.Validators;
 
-internal sealed class UpdateSalaryDtoValidator : AbstractValidator<UpdateSalaryDto>
+public sealed class UpdateSalaryDtoValidator : AbstractValidator<UpdateSalaryDto>
 {
     public UpdateSalaryDtoValidator()
     {
